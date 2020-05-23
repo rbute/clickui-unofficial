@@ -1,6 +1,8 @@
-#Unofficial Click UI 
 
-##Usage
+# Unofficial Click UI 
+
+## Usage
+
 ```python
 from clickui import make_ui # This one is from this framework
 import click 
@@ -12,4 +14,4 @@ def sample_command():
     pass
 ```
 ## Screenshot
-![Convert Click command to UI](screenshots/Screenshot from 2020-05-23 14-39-17.png)
+![Convert Click command to UI](screenshots/Screenshot_from_2020-05-23_14-39-17.png)
