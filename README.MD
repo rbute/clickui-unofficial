@@ -1,5 +1,23 @@
 
 # Unofficial Click UI 
+So, you have just designed a new command line app that works for you. 
+Now, you have a user base, who is not an IT/Software professional. 
+
+And you need an UI probably!
+
+And a Basic one would suffice?
+
+Then you can use this project/library to quickly create an UI with just 3 Lines of extra code.
+1. Add this project in your requirement.txt/setup.py
+1. Import the annotation
+1. Use the annotation
+
+This project is not promising you any fairytale UI framework. 
+It ONLY promises to be less obnoxious to non-IT non-Techinacal people.
+If you need something extravagant, you better design your own framework.
+
+Also, I never intend it to be part of any other framework.
+As I don't want make any other person to alter their way of working or coding because of this.
 
 ## Usage
 

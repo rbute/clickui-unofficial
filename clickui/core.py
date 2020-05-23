@@ -8,6 +8,11 @@ import click.core
 class CommandView:
 
     def __init__(self, cmd: click.Command, **kwargs):
+        """
+        Provide views on top of click.Command
+        :param cmd:
+        :param kwargs:
+        """
         self.cmd = cmd
         self.obj_views_list: list = []
         self.arg_views_list: list = []
@@ -35,8 +40,8 @@ class CommandView:
                 raise TypeError(f'Unknown parameter {item.__class__}')
 
         self.arg_views_list = [ArgumentView(argument, self.cmd_view) for argument in arg_list]
-        self.opt_views_list = [OptionView(argument, self.cmd_view) for argument in opt_list]
-        self.obj_views_list = [ObjectView(argument, self.cmd_view) for argument in obj_list]
+        self.opt_views_list = [OptionView(option, self.cmd_view) for option in opt_list]
+        self.obj_views_list = [ObjectView(object, self.cmd_view) for object in obj_list]
         self.ctx_view = None if not ctx else ContextView(ctx, self.cmd_view)
 
         run_btn: tk.Button = tk.Button(master=self.cmd_view, text='Run', command=self.invoke_cmd)
@@ -76,7 +81,7 @@ class ParamView(tk.LabelFrame):
             in_put = tk.Entry(self)
         elif type(input_type) == click.FLOAT:
             in_put = tk.Entry(self)
-        elif type(input_type) == click.BOOL:
+        elif type(input_type) == click.types.BoolParamType:
             in_put = tk.Entry(self)
         elif type(input_type) == click.IntRange:
             in_put = tk.Entry(self)

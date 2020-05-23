@@ -28,5 +28,4 @@ class MyTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # sample_command()
     unittest.main()
