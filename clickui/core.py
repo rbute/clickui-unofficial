@@ -39,8 +39,8 @@ class CommandView:
             else:
                 raise TypeError(f'Unknown parameter {item.__class__}')
 
-        self.arg_views_list = [ArgumentView(argument, self.cmd_view) for argument in arg_list]
-        self.opt_views_list = [OptionView(option, self.cmd_view) for option in opt_list]
+        self.arg_views_list = [view_mapping[type(argument.type)](argument, self.cmd_view) for argument in arg_list]
+        self.opt_views_list = [view_mapping[type(option.type)](option, self.cmd_view) for option in opt_list]
         self.obj_views_list = [ObjectView(object, self.cmd_view) for object in obj_list]
         self.ctx_view = None if not ctx else ContextView(ctx, self.cmd_view)
 
@@ -71,67 +71,27 @@ class ParamView(tk.LabelFrame):
 
     def create_inputs(self):
         if self.param.multiple:
-            self.inputs: typing.List[tk.Widget] = [self.get_input_type(self.param.type)]
+            self.inputs: typing.List[tk.Widget] = [self.get_input_type()]
         else:
-            self.inputs: tk.Widget = self.get_input_type(self.param.type)
+            self.inputs: tk.Widget = self.get_input_type()
 
-    def get_input_type(self, input_type):
-        in_put: tk.Widget = None
-        if type(input_type) == click.INT:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.FLOAT:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.types.BoolParamType:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.IntRange:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.FloatRange:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.Path:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.types.StringParamType:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.Choice:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.DateTime:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.types.UUIDParameterType:
-            in_put = tk.Entry(self)
-        elif type(input_type) == click.File:
-            in_put = tk.Entry(self)
-        else:
-            in_put = tk.Entry(self)
+    def get_input_type(self):
+        in_put = tk.Entry(self)
         in_put.pack(fill=tk.X)
         return in_put
-
-    def value(self):
-        if type(self.inputs) == list:
-            return [i.get() for i in self.inputs]
-        else:
-            return [self.inputs.get()]
-
-
-class OptionView(ParamView):
-
-    def __init__(self, option: click.Option, master):
-        super().__init__(option, master)
 
     def value(self):
         return_list: list = []
         if type(self.inputs) == list:
             for i in self.inputs:
-                return_list.append(self.param.opts[0])
+                if type(self.param) == click.core.Option:
+                    return_list.append(self.param.opts[0])
                 return_list.append(i.get())
         else:
-            return_list.append(self.param.opts[0])
+            if type(self.param) == click.core.Option:
+                return_list.append(self.param.opts[0])
             return_list.append(self.inputs.get())
         return return_list
-
-
-class ArgumentView(ParamView):
-
-    def __init__(self, argument, master):
-        super().__init__(argument, master)
 
 
 class ObjectView(ParamView):
@@ -144,3 +104,17 @@ class ContextView(ParamView):
 
     def __init__(self, ctx, master):
         super().__init__(ctx, master)
+
+
+view_mapping: dict = {
+    click.types.StringParamType: ParamView,
+    click.types.UnprocessedParamType: ParamView,
+    click.types.Choice: ParamView,
+    click.types.DateTime: ParamView,
+    click.types.IntParamType: ParamView,
+    click.types.FloatParamType: ParamView,
+    click.types.BoolParamType: ParamView,
+    click.types.UUIDParameterType: ParamView,
+    click.types.File: ParamView,
+    click.types.Path: ParamView,
+}
