@@ -18,13 +18,12 @@ class CommandView:
         self.arg_views_list: list = []
         self.opt_views_list: list = []
         self.ctx_view: click.Context = None
-        self.cmd_view: tk.Frame = None
-        self.app: tk.Tk = tk.Tk()
+
         self.create_ui()
         self.app.mainloop()
 
     def create_ui(self):
-        self.cmd_view = tk.Frame(self.app)
+        self.app: tk.Tk = tk.Tk()
         obj_list: list = []
         arg_list: list = []
         opt_list: list = []
@@ -39,14 +38,13 @@ class CommandView:
             else:
                 raise TypeError(f'Unknown parameter {item.__class__}')
 
-        self.arg_views_list = [view_mapping[type(argument.type)](argument, self.cmd_view) for argument in arg_list]
-        self.opt_views_list = [view_mapping[type(option.type)](option, self.cmd_view) for option in opt_list]
-        self.obj_views_list = [ObjectView(object, self.cmd_view) for object in obj_list]
-        self.ctx_view = None if not ctx else ContextView(ctx, self.cmd_view)
+        self.arg_views_list = [view_mapping[type(argument.type)](argument, self.app) for argument in arg_list]
+        self.opt_views_list = [view_mapping[type(option.type)](option, self.app) for option in opt_list]
+        self.obj_views_list = [ObjectView(object, self.app) for object in obj_list]
+        self.ctx_view = None if not ctx else ContextView(ctx, self.app)
 
-        run_btn: tk.Button = tk.Button(master=self.cmd_view, text='Run', command=self.invoke_cmd)
+        run_btn: tk.Button = tk.Button(master=self.app, text='Run', command=self.invoke_cmd)
         run_btn.pack(fill=tk.X)
-        self.cmd_view.pack()
 
     def invoke_cmd(self):
         param_list: list = []
@@ -63,8 +61,10 @@ class CommandView:
 
 
 class ParamView(tk.LabelFrame):
-    def __init__(self, param: click.Parameter, master: tk.Widget):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
         super().__init__(master, text=param.human_readable_name)
+        self.values: list = []
+        self.inputs = None
         self.param: click.Parameter = param
         self.create_inputs()
         self.pack(fill=tk.X)
@@ -76,21 +76,43 @@ class ParamView(tk.LabelFrame):
             self.inputs: tk.Widget = self.get_input_type()
 
     def get_input_type(self):
-        in_put = tk.Entry(self)
+        if hasattr(self, 'tk_var_type'):
+            var = self.tk_var_type()
+        else:
+            var = tk.StringVar()
+        # var: tk.StringVar = tk.StringVar()
+        self.values.append(var)
+        if hasattr(self, 'tk_input_type'):
+            in_put = self.tk_input_type(self, variable=var, text=self.param.human_readable_name)
+        else:
+            in_put = tk.Entry(self, textvariable=var)
         in_put.pack(fill=tk.X)
         return in_put
 
     def value(self):
         return_list: list = []
         if type(self.inputs) == list:
-            for i in self.inputs:
+            for i in self.values:
                 if type(self.param) == click.core.Option:
                     return_list.append(self.param.opts[0])
                 return_list.append(i.get())
         else:
             if type(self.param) == click.core.Option:
                 return_list.append(self.param.opts[0])
-            return_list.append(self.inputs.get())
+            return_list.append(self.values[0].get())
+        return return_list
+
+
+class BoolParamView(ParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = tk.Checkbutton
+        self.tk_var_type = tk.BooleanVar
+        super().__init__(param, master)
+
+    def value(self):
+        return_list: list = []
+        if self.param.is_flag and self.values[0].get():
+            return_list.append(self.param.opts[0])
         return return_list
 
 
@@ -113,7 +135,7 @@ view_mapping: dict = {
     click.types.DateTime: ParamView,
     click.types.IntParamType: ParamView,
     click.types.FloatParamType: ParamView,
-    click.types.BoolParamType: ParamView,
+    click.types.BoolParamType: BoolParamView,
     click.types.UUIDParameterType: ParamView,
     click.types.File: ParamView,
     click.types.Path: ParamView,

@@ -14,10 +14,12 @@ os.environ['CLICKUI'] = 'False'
 @click.argument('sample_arg2')
 @click.argument('sample_arg')
 @click.option('--sample_option', '-s', '--samopts')
-def sample_command(sample_arg, sample_arg2, sample_option):
+@click.option('-f', is_flag=True)
+def sample_command(sample_arg, sample_arg2, sample_option, f):
     click.echo(f'sample_arg: {sample_arg}')
     click.echo(f'sample_arg2: {sample_arg2}')
     click.echo(f'sample_option: {sample_option}')
+    click.echo(f'f: {f}')
 
 
 class MyTestCase(unittest.TestCase):
