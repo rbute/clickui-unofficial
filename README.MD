@@ -19,6 +19,15 @@ If you need something extravagant, you better design your own framework.
 Also, I never intend it to be part of any other framework.
 As I don't want make any other person to alter their way of working or coding because of this.
 
+## Installation
+Currently this project is not published in the pypi index.
+I plan to move this to the pypi index when I finally complete developing 1.0.0
+As of now, I am using the pypi Test index. 
+To install, you need to run the following command:
+```bash
+pip install -i https://test.pypi.org/simple/ clickui-unofficial
+```
+
 ## Usage
 
 ```python
