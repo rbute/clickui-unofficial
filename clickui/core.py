@@ -18,9 +18,7 @@ class CommandView:
         self.arg_views_list: list = []
         self.opt_views_list: list = []
         self.ctx_view: click.Context = None
-
         self.create_ui()
-        self.app.mainloop()
 
     def create_ui(self):
         self.app: tk.Tk = tk.Tk()
@@ -58,6 +56,11 @@ class CommandView:
             self.cmd.main(args=param_list)
         finally:
             exit(0)
+
+    def __call__(self, *args, **kwargs):
+        self.app.mainloop()
+        # self.invoke_cmd()
+        pass
 
 
 class ParamView(tk.LabelFrame):

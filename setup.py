@@ -15,7 +15,7 @@ setup(
     long_description_content_type='text/markdown',
     long_description=description,
     author_email=os.getenv('MY_EMAIL', ''),
-    version='0.2.0',
+    version='0.3.0',
     license="BSD-3-Clause",
     packages=find_packages(),
     python_requires=">=3.*",
