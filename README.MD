@@ -20,12 +20,11 @@ Also, I never intend it to be part of any other framework.
 As I don't want make any other person to alter their way of working or coding because of this.
 
 ## Installation
-Currently this project is not published in the pypi index.
-I plan to move this to the pypi index when I finally complete developing 1.0.0
-As of now, I am using the pypi Test index. 
-To install, you need to run the following command:
+Currently this project is published in the pypi index.
+I wanted to publish it when it is stable. But seems like people will use it before it's stable.
+Simply install it using pip, or add it to your requirements.txt or setup.py
 ```bash
-pip install -i https://test.pypi.org/simple/ clickui-unofficial
+pip install clickui-unofficial
 ```
 
 ## Usage
@@ -40,5 +39,12 @@ import click
 def sample_command():
     pass
 ```
+
+## Links
+
+[![Gitter](https://badges.gitter.im/clickui-unofficial/community.svg)](https://gitter.im/clickui-unofficial/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+
+
 ## Screenshot
 ![Convert Click command to UI](screenshots/Screenshot_from_2020-05-23_14-39-17.png)

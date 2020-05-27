@@ -1,11 +1,12 @@
 import tkinter as tk
 import typing
+from tkinter import filedialog
 
 import click
 import click.core
 
 
-class CommandView:
+class TkCommandView:
 
     def __init__(self, cmd: click.Command, **kwargs):
         """
@@ -131,6 +132,42 @@ class ContextView(ParamView):
         super().__init__(ctx, master)
 
 
+class PathParamView(ParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = TkFileSelectorView
+        self.tk_var_type = tk.StringVar
+        super().__init__(param, master)
+
+    def value(self):
+        return_list: list = []
+        if type(self.inputs) == list:
+            for i in self.values:
+                if type(self.param) == click.core.Option:
+                    return_list.append(self.param.opts[0])
+                return_list.append(i.get())
+        else:
+            if type(self.param) == click.core.Option:
+                return_list.append(self.param.opts[0])
+            return_list.append(self.values[0].get())
+        return return_list
+
+
+class TkFileSelectorView(tk.Entry):
+
+    def __init__(self, master=None, variable=None, text='File', btn_text='Browse'):
+        # Fixme: Find eventbinding for tkinter entry
+        # and implement StringVar update on event of
+        # Key release or paste
+        super().__init__(master, textvariable=variable, text=text)
+        select_btn: tk.Button = tk.Button(master=master, text=btn_text, state=tk.ACTIVE, command=self.set_file)
+        select_btn.pack(side='right')
+        self.var: tk.StringVar = variable
+
+    def set_file(self):
+        file_path: str = filedialog.askopenfilename()
+        self.var.set(file_path)
+
+
 view_mapping: dict = {
     click.types.StringParamType: ParamView,
     click.types.UnprocessedParamType: ParamView,
@@ -140,6 +177,6 @@ view_mapping: dict = {
     click.types.FloatParamType: ParamView,
     click.types.BoolParamType: BoolParamView,
     click.types.UUIDParameterType: ParamView,
-    click.types.File: ParamView,
+    click.types.File: PathParamView,
     click.types.Path: ParamView,
 }

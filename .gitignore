@@ -227,5 +227,6 @@ pyvenv.cfg
 .venv
 pip-selfcheck.json
 
+quick.py
 .idea/
 
