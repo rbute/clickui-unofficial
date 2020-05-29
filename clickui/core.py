@@ -132,8 +132,11 @@ class ContextView(ParamView):
         super().__init__(ctx, master)
 
 
-class PathParamView(ParamView):
+class FileParamView(ParamView):
     def __init__(self, param: click.Parameter, master: tk.Tk):
+        # Fixme: Find eventbinding for tkinter entry
+        # and implement StringVar update on event of
+        # Key release or paste
         self.tk_input_type = TkFileSelectorView
         self.tk_var_type = tk.StringVar
         super().__init__(param, master)
@@ -163,9 +166,29 @@ class TkFileSelectorView(tk.Entry):
         select_btn.pack(side='right')
         self.var: tk.StringVar = variable
 
+    def cmd(self):
+        print('Hello World')
+
     def set_file(self):
         file_path: str = filedialog.askopenfilename()
         self.var.set(file_path)
+        self.delete(0)
+        self.insert(0, file_path)
+
+
+class TkPathSelectorView(TkFileSelectorView):
+    def set_file(self):
+        file_path: str = filedialog.askdirectory()
+        self.var.set(file_path)
+        self.delete(0)
+        self.insert(0, file_path)
+
+
+class PathParamView(FileParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = TkPathSelectorView
+        self.tk_var_type = tk.StringVar
+        super().__init__(param, master)
 
 
 view_mapping: dict = {
@@ -177,6 +200,6 @@ view_mapping: dict = {
     click.types.FloatParamType: ParamView,
     click.types.BoolParamType: BoolParamView,
     click.types.UUIDParameterType: ParamView,
-    click.types.File: PathParamView,
-    click.types.Path: ParamView,
+    click.types.File: FileParamView,
+    click.types.Path: PathParamView,
 }
