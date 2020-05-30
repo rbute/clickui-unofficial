@@ -4,6 +4,7 @@ from tkinter import filedialog
 
 import click
 import click.core
+import tkcalendar as tkc
 
 
 class TkCommandView:
@@ -87,7 +88,14 @@ class ParamView(tk.LabelFrame):
         # var: tk.StringVar = tk.StringVar()
         self.values.append(var)
         if hasattr(self, 'tk_input_type'):
-            in_put = self.tk_input_type(self, variable=var, text=self.param.human_readable_name)
+            if hasattr(self, 'init_params') and not hasattr(self, 'init_vars'):
+                in_put = self.tk_input_type(self, **self.init_params)
+            elif not hasattr(self, 'init_params') and hasattr(self, 'init_vars'):
+                in_put = self.tk_input_type(self, *self.init_vars)
+            elif hasattr(self, 'init_params') and hasattr(self, 'init_vars'):
+                in_put = self.tk_input_type(self, *self.init_vars, **self.init_params)
+            else:
+                in_put = self.tk_input_type(self, variable=var, text=self.param.human_readable_name)
         else:
             in_put = tk.Entry(self, textvariable=var)
         in_put.pack(fill=tk.X)
@@ -191,15 +199,73 @@ class PathParamView(FileParamView):
         super().__init__(param, master)
 
 
+class ChoiceView(ParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = tk.OptionMenu
+        self.tk_var_type = tk.StringVar
+        self.tk_var = tk.StringVar()
+        # self.init_params = {
+        # }
+        self.init_vars = (
+            self.tk_var,
+            *param.type.choices
+        )
+        super().__init__(param, master)
+
+
+class DateTimeView(ParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = tkc.DateEntry
+        self.tk_var_type = tk.StringVar
+        self.tk_var = tk.StringVar()
+        self.init_params = {
+            'textvariable' : self.tk_var
+        }
+        super().__init__(param, master)
+
+
+class IntView(ParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = tk.Entry
+        self.tk_var_type = tk.StringVar
+        self.tk_var = tk.StringVar()
+        self.init_params = {
+            'textvariable' : self.tk_var
+        }
+        super().__init__(param, master)
+
+
+class FloatView(ParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = tk.Entry
+        self.tk_var_type = tk.StringVar
+        self.tk_var = tk.StringVar()
+        self.init_params = {
+            'textvariable' : self.tk_var
+        }
+        super().__init__(param, master)
+
+
+class UuidView(ParamView):
+    def __init__(self, param: click.Parameter, master: tk.Tk):
+        self.tk_input_type = tk.Entry
+        self.tk_var_type = tk.StringVar
+        self.tk_var = tk.StringVar()
+        self.init_params = {
+            'textvariable': self.tk_var
+        }
+        super().__init__(param, master)
+
+
 view_mapping: dict = {
     click.types.StringParamType: ParamView,
     click.types.UnprocessedParamType: ParamView,
-    click.types.Choice: ParamView,
-    click.types.DateTime: ParamView,
-    click.types.IntParamType: ParamView,
-    click.types.FloatParamType: ParamView,
+    click.types.Choice: ChoiceView,
+    click.types.DateTime: DateTimeView,
+    click.types.IntParamType: IntView,
+    click.types.FloatParamType: FloatView,
     click.types.BoolParamType: BoolParamView,
-    click.types.UUIDParameterType: ParamView,
+    click.types.UUIDParameterType: UuidView,
     click.types.File: FileParamView,
     click.types.Path: PathParamView,
 }
