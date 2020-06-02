@@ -52,8 +52,9 @@ class TkCommandView:
             param_list = param_list + arg.value()
 
         for opt in self.opt_views_list:
-            param_list = param_list + opt.value()
-
+            if opt.is_value_present():
+                param_list = param_list + opt.value()
+        click.echo(param_list)
         try:
             self.cmd.main(args=param_list)
         finally:
@@ -61,8 +62,6 @@ class TkCommandView:
 
     def __call__(self, *args, **kwargs):
         self.app.mainloop()
-        # self.invoke_cmd()
-        pass
 
 
 class ParamView(tk.LabelFrame):
@@ -104,19 +103,28 @@ class ParamView(tk.LabelFrame):
     def value(self):
         return_list: list = []
         if type(self.inputs) == list:
-            for i in self.values:
+            for i in self.inputs:
                 if type(self.param) == click.core.Option:
                     return_list.append(self.param.opts[0])
                 return_list.append(i.get())
         else:
-            if type(self.param) == click.core.Option:
+            if type(self.param) == click.core.Option and self.inputs.get():
                 return_list.append(self.param.opts[0])
-            return_list.append(self.values[0].get())
+            if self.inputs.get():
+                return_list.append(self.inputs.get())
         return return_list
+
+    def is_value_present(self):
+        # TODO: Implement Validation Logic
+        if not isinstance(self.inputs, list):
+            return self.inputs.get()
+        else:
+            return True
 
 
 class BoolParamView(ParamView):
     def __init__(self, param: click.Parameter, master: tk.Tk):
+        # TODO: Bool Params are not multi input. Adjust accordingly
         self.tk_input_type = tk.Checkbutton
         self.tk_var_type = tk.BooleanVar
         super().__init__(param, master)
@@ -126,6 +134,10 @@ class BoolParamView(ParamView):
         if self.param.is_flag and self.values[0].get():
             return_list.append(self.param.opts[0])
         return return_list
+
+    def is_value_present(self):
+        # TODO: Implement Validation Logic
+        return self.values[0].get()
 
 
 class ObjectView(ParamView):
@@ -142,7 +154,7 @@ class ContextView(ParamView):
 
 class FileParamView(ParamView):
     def __init__(self, param: click.Parameter, master: tk.Tk):
-        # Fixme: Find eventbinding for tkinter entry
+        # Fixme: Find event binding for tkinter entry
         # and implement StringVar update on event of
         # Key release or paste
         self.tk_input_type = TkFileSelectorView
@@ -152,30 +164,28 @@ class FileParamView(ParamView):
     def value(self):
         return_list: list = []
         if type(self.inputs) == list:
-            for i in self.values:
+            for i in self.inputs:
                 if type(self.param) == click.core.Option:
                     return_list.append(self.param.opts[0])
                 return_list.append(i.get())
         else:
-            if type(self.param) == click.core.Option:
+            if type(self.param) == click.core.Option is self.inputs.get():
                 return_list.append(self.param.opts[0])
-            return_list.append(self.values[0].get())
+            if self.inputs.get():
+                return_list.append(self.inputs.get())
         return return_list
 
 
 class TkFileSelectorView(tk.Entry):
 
     def __init__(self, master=None, variable=None, text='File', btn_text='Browse'):
-        # Fixme: Find eventbinding for tkinter entry
+        # Fixme: Find event binding for tkinter entry
         # and implement StringVar update on event of
         # Key release or paste
         super().__init__(master, textvariable=variable, text=text)
         select_btn: tk.Button = tk.Button(master=master, text=btn_text, state=tk.ACTIVE, command=self.set_file)
         select_btn.pack(side='right')
         self.var: tk.StringVar = variable
-
-    def cmd(self):
-        print('Hello World')
 
     def set_file(self):
         file_path: str = filedialog.askopenfilename()
@@ -204,22 +214,24 @@ class ChoiceView(ParamView):
         self.tk_input_type = tk.OptionMenu
         self.tk_var_type = tk.StringVar
         self.tk_var = tk.StringVar()
-        # self.init_params = {
-        # }
         self.init_vars = (
             self.tk_var,
             *param.type.choices
         )
         super().__init__(param, master)
 
+        def value(self):
+            return ''
+
 
 class DateTimeView(ParamView):
     def __init__(self, param: click.Parameter, master: tk.Tk):
+        # FIXME: Invalid Format :/
         self.tk_input_type = tkc.DateEntry
         self.tk_var_type = tk.StringVar
         self.tk_var = tk.StringVar()
         self.init_params = {
-            'textvariable' : self.tk_var
+            'textvariable': self.tk_var
         }
         super().__init__(param, master)
 
@@ -230,7 +242,7 @@ class IntView(ParamView):
         self.tk_var_type = tk.StringVar
         self.tk_var = tk.StringVar()
         self.init_params = {
-            'textvariable' : self.tk_var
+            'textvariable': self.tk_var
         }
         super().__init__(param, master)
 
@@ -241,7 +253,7 @@ class FloatView(ParamView):
         self.tk_var_type = tk.StringVar
         self.tk_var = tk.StringVar()
         self.init_params = {
-            'textvariable' : self.tk_var
+            'textvariable': self.tk_var
         }
         super().__init__(param, master)
 
